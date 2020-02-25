@@ -797,6 +797,45 @@ texttype(Text *t, Rune r)
 		undo(t, nil, nil, FALSE, 0, nil, 0);
 		return;
 
+	/* adding X11 C-c, C-v, C-x, C-z, C-y, C-s
+	 * (copy, paste, cut, undo, redo, save) */
+	case 0x03:	/* C-c */
+		typecommit(t);
+		cut(t, t, nil, TRUE, FALSE, nil, 0);
+		return;
+	case 0x16:	/* C-v */
+		typecommit(t);
+		if(t->what == Body){
+			seq++;
+			filemark(t->file);
+		}
+		paste(t, t, nil, TRUE, FALSE, nil, 0);
+		textshow(t, t->q0, t->q1, 1);
+		t->iq1 = t->q1;
+		return;
+	case 0x18:	/* C-x */
+		typecommit(t);
+		if(t->what == Body){
+			seq++;
+			filemark(t->file);
+		}
+		cut(t, t, nil, TRUE, TRUE, nil, 0);
+		textshow(t, t->q0, t->q0, 1);
+		t->iq1 = t->q0;
+		return;
+	case 0x1A:	/* C-z */
+		typecommit(t);
+		undo(t, nil, nil, TRUE, 0, nil, 0);
+		return;
+	case 0x19:	/* C-y */
+		typecommit(t);
+		undo(t, nil, nil, FALSE, 0, nil, 0);
+		return;
+	case 0x13:	/* C-s */
+		typecommit(t);
+		put(t, nil, nil, FALSE, 0, nil, 0);
+		return;
+
 	Tagdown:
 		/* expand tag to show all text */
 		if(!t->w->tagexpand){
